@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<systems>
+    <system id="seckill" name="秒杀系统">
+        <baseUrl>localhost:8080</baseUrl>
+        <homeUri>/homepage</homeUri>
+        <innerAddress>http://127.0.01</innerAddress>
+    </system>
+</systems>

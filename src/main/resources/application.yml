@@ -1,0 +1,24 @@
+server:
+  port: 8082
+  ssl:
+    protocol: TLS
+    key-store: classpath:tomcat.keystore
+    key-store-password: 123456
+    key-alias: tomcat
+
+spring:
+  thymeleaf:
+    prefix: classpath:/templates/
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sso?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: 12345
+    type: com.alibaba.druid.pool.DruidDataSource
+
+
+mybatis:
+  mapper-locations: mapper/*.xml
+  type-aliases-package: com.learn.sso.domain
+

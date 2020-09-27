@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户登录</title>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.css">
+    <script src="/jquery/cookie_util.js"></script>
+    <script src="/jquery/jquery.js"></script>
+    <script src="/jquery/jQuery_md5.js"></script>
+
+    <script type="text/javascript">
+        var UNAME_COOKIE_NAME = "lastLoginUserName";
+        $(function () {
+            // 如果name没有value, 将cookie中存储过的name值写入
+            var eleName = $("input[name=name]");
+            eleName.val(Cookie.get(UNAME_COOKIE_NAME));
+
+            // 登录按钮被点击的时记住当前的name
+            $("button").click(function () {
+                // 存储时间为7天
+                Cookie.set(UNAME_COOKIE_NAME, $.trim(eleName.val()), null, 7 * 24 *60);
+
+                // 将密码字段使用 MD5(MD5(密码) + 验证码) 编码后发送给服务器
+                // var elePasswd = $("input[name=password]");
+                // var password = elePasswd.val();
+                // elePasswd.val($.md5($.md5(password) + $("input[name=captcha]").val()));
+            });
+
+            // 加载验证码
+            drawCaptcha();
+        });
+        
+        function drawCaptcha() {
+            $.ajax("/preLogin").done(function (data) {
+                console.log(data);
+                $("#captchaImg").attr("src", data.imgData);
+            }).fail(function () {
+                alert("验证码加载失败");
+            })
+        }
+    </script>
+
+    <script type="text/javascript">
+        function login() {
+            var username = $("#username").val();
+            var password = $("#password").val();
+            var captcha = $("#captcha").val();
+
+            password = $.md5($.md5(password) + captcha);
+
+            var dat = {
+                "username": username,
+                "password": password,
+                "captcha": captcha
+            };
+            $.ajax({
+                type: 'post',
+                url: "/login",
+                data: dat,
+                success: function (data) {
+                    // 跳转
+                    if (data.status == 200) {
+                        location.href = "/homepage";
+                    }else {
+                        $("#errorMsg").html(data.msg);
+                    }
+                }, error: function () {
+                    alert("请求出错，请稍后重试");
+                }
+            });
+        }
+    </script>
+
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+
+        }
+
+        body {
+            background-size: 100%;
+        }
+
+        .title {
+
+            text-align: center;
+        }
+
+        .content {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -180px;
+            margin-top: -200px;
+            width: 360px;
+            height: 320px;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0px 2px 38px #cccccc;
+            background-color: #ffffff;
+        }
+
+        #login {
+            width: 100%;
+        }
+
+        .form-control {
+            font-size: 10px !important;
+        }
+
+        .error {
+            font-size: 10px !important;
+            color: red !important;
+            font-weight: 100 !important;
+        }
+
+        .form-control-xxx {
+            display:inline;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="title">
+            <h4>用户登录</h4>
+        </div>
+        <h4 id="errorMsg" style="color: red"></h4>
+
+        <div class="form-group">
+            <input id="username" name="name" class="form-control" type="text" placeholder="用户名" required="true"
+                   minlength="11" maxlength="11"/>
+        </div>
+
+        <div class="form-group">
+            <input id="password" name="password" class="form-control" type="password" placeholder="密码"
+                   required="true" minlength="6" maxlength="16"/>
+        </div>
+
+        <div class="form-inline">
+            <input id="captcha" type="text" class="form-control" placeholder="验证码">
+            <img src="" id="captchaImg" onclick="drawCaptcha();">
+        </div>
+        <br>
+        <div class="form-group">
+            <label class="checkbox-inline">
+                <input type="checkbox" name="rememberMe" value="true">自动登录
+            </label>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" onclick="login();">登录</button>
+    </div>
+</body>
+</html>
